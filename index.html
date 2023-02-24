@@ -1,0 +1,166 @@
+<html data-lt-installed="true" lang="en"><head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title>Sand kingdom</title>
+
+	<link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==" crossorigin="">
+    <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js" integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ==" crossorigin=""></script>
+
+	<style>
+		html, body {
+			height: 100%;
+			margin: 0;
+		}
+		.leaflet-container {
+			height: 903px;
+			width: 1086px;
+			max-width: 100%;
+			max-height: 100%;
+		}
+	</style>
+
+
+</head>
+<body>
+
+
+
+<div id="map" style="width: 903px; height: 1086px;"></div>
+<script>
+  console.log("Started script");
+
+  function from_pix(point) {
+	  var adjust = [2048-point[0], point[1]];
+	  
+	  return to_map_pos(adjust)
+  }
+
+  function to_map_pos(point) {
+	  var bounds = get_bounds()
+
+	  return [bounds[1][1] - point[1], bounds[1][0] - point[0]]// Switch points cause leaf is crazy
+  }
+
+var map = L.map('map', {
+	  crs: L.CRS.Simple,
+	  minZoom: -10
+});
+  var server = 'http://localhost:33556'
+  
+
+  var bounds = get_bounds()
+  var size = [bounds[1][0] - bounds[0][0], bounds[1][1] - bounds[0][1]]
+  var image = L.imageOverlay(server + '/map', bounds).addTo(map);
+  map.fitBounds(bounds);
+  var group = L.layerGroup([])
+  group.addTo(map);
+  var markers = {}
+
+  async function fetchData() {
+	  var response = await fetch(server + '/info.json')
+	  if (response.ok) {
+		  console.log("Got response");
+		  console.log(response);
+		  var json = await response.json()
+		  var json = json.Players
+		  group.clearLayers();
+		  // L.marker(to_map_pos([0,0])).addTo(group).bindPopup("00")
+		  // L.marker(to_map_pos([2048,2048])).addTo(group).bindPopup("++")
+		  // L.marker(to_map_pos([2048,0])).addTo(group).bindPopup("+0")
+		  // L.marker(to_map_pos([0,2048])).addTo(group).bindPopup("0+")
+
+
+		  // L.marker(to_map_pos([481, 1946])).addTo(group).bindPopup("oasis")
+		  // L.marker(from_pix([1567, 1946])).addTo(group).bindPopup("oasis")
+		  // L.marker(from_pix([416, 196])).addTo(group).bindPopup("maze")
+		  // L.marker(from_pix([530, 952])).addTo(group).bindPopup("pillar")
+
+		  // L.marker(from_game([36098,-33419])).addTo(group).bindPopup("LR")
+		  // L.marker(from_game([-35274, 13238])).addTo(group).bindPopup("UL")
+		  // L.marker(from_game([-4417, 8697] )).addTo(group).bindPopup("MP")
+		  // L.marker(from_game([0,0])).addTo(group).bindPopup("Origin")
+
+
+
+		  // L.marker(from_game([0,0])).addTo(group).bindPopup("Origin")
+		  // L.marker(from_game([2048,2048])).addTo(group).bindPopup("Origin")
+
+		  // L.marker([481, 1946]).addTo(group).bindPopup("mp1")
+		  // L.marker([1632, 196]).addTo(group).bindPopup("mp2")
+
+		  // L.marker(from_game([2048,2048])).addTo(group).bindPopup("Map corner")
+
+		  // L.marker(from_game([1000,0])).addTo(group).bindPopup("Pos X")
+		  // L.marker(from_game([0,1000])).addTo(group).bindPopup("Pos Y")
+		  // L.marker(from_game([10000,10000])).addTo(group).bindPopup("Pos Diag")
+
+		  console.log("Parsing response");
+		  console.log(json);
+		  var new_markers = {}
+		  for (playerIndex in json) {
+			  var player = json[playerIndex]
+			  var name = player.Name;
+			  var pos = player.Location;
+
+			  console.log("Parsing player");
+			  console.log(player.Location);
+
+
+			  // L.marker([-player.pos[0] - size[0]/2, -player.pos[2] - size[1]/2], {'title': player.name}).addTo(group).bindPopup(player.name)
+			  var pos = from_game([pos[0], pos[2]]);
+			  L.marker(pos,
+			  		   {'title': name})
+			  	  .addTo(group)
+			  	  .bindPopup(name)
+
+			  // Properly move markers
+
+			  // var latlng = [-player.pos[0] - size[0]/2, -player.pos[2] - size[1]/2];
+			  // let name = player.name
+
+			  // var marker =  markers[name]
+			  // if marker === undefined {
+			  // 	  var marker = L.marker(latlng, {'title': name}).addTo(group).bindPopup(name)
+			  // 	  new_markers[name] = marker
+			  // } else {
+			  // 	  marker.setLatLng(latlng)
+			  // 	  new_markers[name]
+			  // 	  delete 3
+			  // }
+		  }
+
+	  }
+  }
+  setInterval(fetchData, 100);
+  // fetchData()
+
+  function get_bounds() {
+	  return [[0, 0], [2048, 2048]]
+  }
+
+  function from_game(point) {
+
+	  var m = [0.024517, 0.02444]
+	  var b = [1070, 1300]
+
+
+	  var x_func = x => (x * m[0]) + b[0]
+	  var y_func = y => (y * m[1]) + b[1]
+	  // var x_func = x => x
+	  // var y_func = y => y
+
+
+	  return to_map_pos([y_func(point[1]), x_func(point[0])])
+
+  }
+
+</script>
+
+
+
+
+
+</body></html>
