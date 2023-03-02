@@ -108,11 +108,21 @@ async def get_info():
         writer.write(request.encode())
         await writer.drain()
 
-        data = await reader.read(1000)
-        data = data.decode('utf-8')
+        tot_data = bytearray()
+        data = ""
+        while True:
+            data = await reader.read(1000)
+            tot_data += data
+            data = data.decode('utf-8')
+
+            try:
+                out_json = json.loads(tot_data)
+                data = out_json
+                break
+            except json.decoder.JSONDecodeError:
+                pass
         if not data:
             continue
-        data = json.loads(data)
         global response
         response = data
         # print(response)
