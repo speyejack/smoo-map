@@ -72,36 +72,6 @@
 		  if (response.ok) {
 			  var json = await response.json()
 			  var json = json.Players
-			  group.clearLayers();
-			  // L.marker(to_map_pos([0,0])).addTo(group).bindPopup("00")
-			  // L.marker(to_map_pos([2048,2048])).addTo(group).bindPopup("++")
-			  // L.marker(to_map_pos([2048,0])).addTo(group).bindPopup("+0")
-			  // L.marker(to_map_pos([0,2048])).addTo(group).bindPopup("0+")
-
-
-			  // L.marker(to_map_pos([481, 1946])).addTo(group).bindPopup("oasis")
-			  // L.marker(from_pix([1567, 1946])).addTo(group).bindPopup("oasis")
-			  // L.marker(from_pix([416, 196])).addTo(group).bindPopup("maze")
-			  // L.marker(from_pix([530, 952])).addTo(group).bindPopup("pillar")
-
-			  // L.marker(from_game([36098,-33419])).addTo(group).bindPopup("LR")
-			  // L.marker(from_game([-35274, 13238])).addTo(group).bindPopup("UL")
-			  // L.marker(from_game([-4417, 8697] )).addTo(group).bindPopup("MP")
-			  // L.marker(from_game([0,0])).addTo(group).bindPopup("Origin")
-
-
-
-			  // L.marker(from_game([0,0])).addTo(group).bindPopup("Origin")
-			  // L.marker(from_game([2048,2048])).addTo(group).bindPopup("Origin")
-
-			  // L.marker([481, 1946]).addTo(group).bindPopup("mp1")
-			  // L.marker([1632, 196]).addTo(group).bindPopup("mp2")
-
-			  // L.marker(from_game([2048,2048])).addTo(group).bindPopup("Map corner")
-
-			  // L.marker(from_game([1000,0])).addTo(group).bindPopup("Pos X")
-			  // L.marker(from_game([0,1000])).addTo(group).bindPopup("Pos Y")
-			  // L.marker(from_game([10000,10000])).addTo(group).bindPopup("Pos Diag")
 
 			  var new_markers = {}
 			  for (playerIndex in json) {
@@ -110,35 +80,39 @@
 				  var pos = player.Position;
 				  var stage = player.Stage
 				  if (!stage.includes("Home")){
-					  continue
+					  var marker = markers[name];
+					  if (marker !== undefined){
+						  marker.remove();
+						  delete markers[name];
+					  }
+					  continue;
 				  }
 
 
-
-				  // L.marker([-player.pos[0] - size[0]/2, -player.pos[2] - size[1]/2], {'title': player.name}).addTo(group).bindPopup(player.name)
 				  last_pos = [pos[0], pos[2]];
 				  var pos = from_game([pos[0], pos[2]], stage);
-				  L.marker(pos,
-						   {'title': name})
-					  .addTo(group)
-					  .bindPopup(name)
 
-				  // Properly move markers
+	              marker = markers[name]
+				  if (marker == undefined){
+					  marker = L.marker(pos,
+										{'title': name})
+						  .addTo(group)
+						  .bindPopup(name);
+				  }  else {
+					  marker.setLatLng(pos);
+				  }
 
-				  // var latlng = [-player.pos[0] - size[0]/2, -player.pos[2] - size[1]/2];
-				  // let name = player.name
+				  delete markers[name];
+				 
+	              new_markers[name] = marker;
 
-				  // var marker =  markers[name]
-				  // if marker === undefined {
-				  // 	  var marker = L.marker(latlng, {'title': name}).addTo(group).bindPopup(name)
-				  // 	  new_markers[name] = marker
-				  // } else {
-				  // 	  marker.setLatLng(latlng)
-				  // 	  new_markers[name]
-				  // 	  delete 3
-				  // }
 			  }
 
+			  for (var marker in markers) {
+				  marker.remove();
+			  }
+
+			  markers = new_markers;
 		  }
 	  }
 
