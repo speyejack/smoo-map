@@ -1,26 +1,39 @@
 from aiohttp import web
 import asyncio
 import json
+import sys
 
 request = "{\"API_JSON_REQUEST\":{\"Token\":\"SECRET_TOKEN_12345\",\"Type\":\"Status\"}}"
 response = ""
+
+if len(sys.argv) < 3:
+    print("Missing parameters")
+    print("Usage: reply.py {server_ip} {server_port} (local_port)")
+
+server_ip = sys.argv[1]
+server_port = int(sys.argv[2])
+local_port = 33556
+
+if len(sys.argv) >= 3:
+    local_port = int(sys.argv[3])
 
 async def index(request):
     return web.FileResponse("./index.html")
 
 async def get_map(request):
     stage = None
-    print("Attempting map get")
+    # print("Attempting map get")
     for player in response['Players']:
         if "Home" in player['Stage']:
             stage = player['Stage']
 
 
     if not stage:
+        print("Requested map when no map could be found.")
         return
 
     filename = "./maps/" + stage + ".png"
-    print(f"Getting file {filename}")
+    # print(f"Getting file {filename}")
     return web.FileResponse(filename)
 
 async def get_view_matrix(request):
@@ -79,7 +92,6 @@ async def get_view_matrix(request):
     })
 
 async def send_reply(request):
-    # print("Got request")
     return web.json_response(response)
 
 async def run_update_info(app):
@@ -104,7 +116,7 @@ def create_app():
 async def get_info():
     while True:
         reader, writer = await asyncio.open_connection(
-            '127.0.0.1', 1030)
+            server_ip, server_port)
         writer.write(request.encode())
         await writer.drain()
 
@@ -125,6 +137,7 @@ async def get_info():
             continue
         global response
         response = data
+
         # print(response)
         writer.close()
         await writer.wait_closed()
@@ -136,4 +149,4 @@ async def get_info():
 #     runner.run(handle_reqs)
 #     runner.run(get_info)
 app = create_app()
-web.run_app(app, port=33555)
+web.run_app(app, port=local_port)
