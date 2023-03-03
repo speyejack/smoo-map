@@ -13,7 +13,8 @@ function to_map_pos(point) {
 
 var map = L.map('map', {
 	crs: L.CRS.Simple,
-	minZoom: -10
+	minZoom: -2,
+	maxZoom: 4
 });
 
 var server = window.location.href;
