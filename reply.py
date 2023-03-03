@@ -32,8 +32,8 @@ async def get_map(request):
 
 
     if not stage:
-        print("Requested map when no map could be found.")
-        return
+        print("Map request when no appropriate player location could be found. Defaulting to Mushroom Kingdom.")
+        stage = "PeachWorldHomeStage"
 
     filename = "./maps/" + stage + ".png"
     # print(f"Getting file {filename}")
