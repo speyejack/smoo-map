@@ -6,16 +6,19 @@ import sys
 request = "{\"API_JSON_REQUEST\":{\"Token\":\"SECRET_TOKEN_12345\",\"Type\":\"Status\"}}"
 response = ""
 
-if len(sys.argv) < 3:
+if len(sys.argv) < 2:
     print("Missing parameters")
-    print("Usage: reply.py {server_ip} {server_port} (local_port)")
+    print("Usage: reply.py {server_ip} (server_port) (local_serve_port)")
 
 server_ip = sys.argv[1]
-server_port = int(sys.argv[2])
-local_port = 33556
+server_port = 1030
+local_serve_port = 33556
 
 if len(sys.argv) >= 3:
-    local_port = int(sys.argv[3])
+    server_port = int(sys.argv[2])
+
+if len(sys.argv) >= 4:
+    local_serve_port = int(sys.argv[3])
 
 async def index(request):
     return web.FileResponse("./index.html")
@@ -149,4 +152,4 @@ async def get_info():
 #     runner.run(handle_reqs)
 #     runner.run(get_info)
 app = create_app()
-web.run_app(app, port=local_port)
+web.run_app(app, port=local_serve_port)
