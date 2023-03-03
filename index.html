@@ -79,7 +79,7 @@
 				  var name = player.Name;
 				  var pos = player.Position;
 				  var stage = player.Stage
-				  if (!stage.includes("Home")){
+				  if (stage == undefined || !stage.includes("Home")){
 					  var marker = markers[name];
 					  if (marker !== undefined){
 						  marker.remove();
@@ -108,8 +108,8 @@
 
 			  }
 
-			  for (var marker in markers) {
-				  marker.remove();
+			  for (var name in markers) {
+				  markers[name].remove();
 			  }
 
 			  markers = new_markers;
