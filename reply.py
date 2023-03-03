@@ -80,7 +80,8 @@ async def index(request):
 async def script(request):
     return web.FileResponse("./script.js")
 
-async def get_map(request):
+async def auto_map(request):
+    # Auto stage
     stage = None
     # print("Attempting map get")
     for player in response['Players']:
@@ -94,6 +95,16 @@ async def get_map(request):
 
     filename = "./maps/" + stage + ".png"
     # print(f"Getting file {filename}")
+    return web.FileResponse(filename)
+
+async def get_map(request):
+    print("map?")
+    map_name = request.match_info['map_name']
+    print(map_name)
+
+    if map_name not in matrices:
+        return
+    filename = "./maps/" + map_name + ".png"
     return web.FileResponse(filename)
 
 async def get_view_matrix(request):
@@ -115,7 +126,8 @@ def create_app():
     app.add_routes([web.get('/', index)])
     app.add_routes([web.get('/view', get_view_matrix)])
     app.add_routes([web.get('/index.html', index)])
-    app.add_routes([web.get('/map', get_map)])
+    app.add_routes([web.get(r'/map', auto_map)])
+    app.add_routes([web.get(r'/map/{map_name:\w+}', get_map)])
     app.add_routes([web.get('/info.json', send_reply)])
     app.add_routes([web.get('/script.js', script)])
     return app
