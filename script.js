@@ -58,8 +58,8 @@ async function fetchData() {
 			}
 
 
-			last_pos = [pos[0], pos[2]];
-			var pos = from_game([pos[0], pos[2]], stage);
+			last_pos = [pos.X, pos.Z];
+			var pos = from_game([pos.X, pos.Z], stage);
 
 			marker = markers[name]
 			if (marker == undefined){
